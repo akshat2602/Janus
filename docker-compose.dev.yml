@@ -1,13 +1,6 @@
 version: "3"
 
 services:
-  nginx:
-    image: nginx
-    ports:
-      - 80:80
-    volumes:
-      - ./Nginx/dev.conf.d:/etc/nginx/conf.d
-
   db:
     container_name: janus_db
     image: postgres

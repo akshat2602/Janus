@@ -1,15 +1,6 @@
 version: "3"
 
 services:
-  nginx:
-    image: nginx
-    ports:
-      - 80:80
-    volumes:
-      - tmp_vol:/tmp
-      - ./Nginx/conf.d:/etc/nginx/conf.d
-      - ./client/build:/usr/share/nginx/html
-
   db:
     container_name: janus_db
     image: postgres
