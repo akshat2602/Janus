@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./Nginx/dev.conf.d:/etc/nginx/conf.d
+
+  db:
+    container_name: janus_db
+    image: postgres
+    env_file:
+      - .env
+
+  server:
+    image: cosmtrek/air
+    container_name: janus_server
+    working_dir: /src
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./server:/src
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    command: >
+      sh -c "air -c .air.toml"
+    depends_on:
+      - "db"
+
+  client:
+    image: node:lts-alpine
+    container_name: janus_client
+    working_dir: /src
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/src
+    env_file:
+      - .env
+    command: >
+      sh -c "npm install -g pnpm && pnpm install && pnpm run dev"
+    depends_on:
+      - server
+      - db

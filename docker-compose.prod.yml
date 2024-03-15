@@ -1,0 +1,49 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx
+    ports:
+      - 80:80
+    volumes:
+      - tmp_vol:/tmp
+      - ./Nginx/conf.d:/etc/nginx/conf.d
+      - ./client/build:/usr/share/nginx/html
+
+  db:
+    container_name: janus_db
+    image: postgres
+    env_file:
+      - .env
+
+  server:
+    container_name: janus_server
+    build: ./server
+    working_dir: /src
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./server:/src
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    command: >
+      sh -c "/src/bin/server"
+    depends_on:
+      - "db"
+
+  client:
+    container_name: janus_client
+    build: ./client
+    working_dir: /src
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/src
+    env_file:
+      - .env
+    command: >
+      sh -c "npm install -g pnpm && pnpm install && pnpm run build"
+    depends_on:
+      - server
+      - db
